@@ -1,2 +1,2 @@
-from .mammals import Mammals
-from .birds import Birds
+from .m import Mammals
+from .b import Birds
