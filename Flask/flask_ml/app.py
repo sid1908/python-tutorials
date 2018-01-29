@@ -10,12 +10,15 @@ app = Flask(__name__)
 
 model_directory = 'model'
 model_file_name = '%s/model.pkl' % model_directory
-model_columns_file_name = '%s/model_columns.pkl' % model_directory
+# model_columns_file_name = '%s/model_columns.pkl' % model_directory
 
 # These will be populated at training time
-model_columns = None
+# model_columns = None
 clf = None
 
+@app.route('/')
+def home():
+    return render_template('home.html')
 
 @app.route('/training')
 def training():
@@ -37,9 +40,9 @@ def training():
     y = training_data.iloc[:, 0]
 
     # capture a list of columns that will be used for prediction
-    global model_columns
-    model_columns = list(x.columns)
-    joblib.dump(model_columns, model_columns_file_name)
+    # global model_columns
+    # model_columns = list(x.columns)
+    # joblib.dump(model_columns, model_columns_file_name)
 
     global clf
     clf = RandomForestClassifier()
@@ -53,12 +56,25 @@ def training():
     return 'Success'
 
 
-@app.route('/predict')
+@app.route('/predict', methods = ['POST'])
 def predict():
     clf = joblib.load(model_file_name)
     print('model loaded')
+    
+    if request.method == 'POST':
 
-    prediction = clf.predict([[1, 38.0, 1, 0, 71.2833, 0, 0, 0]])
+        pclass = request.form['pclass']
+        age = request.form['age']
+        sibsp = request.form['sibsp']
+        parch = request.form['parch']
+        fare = request.form['fare']
+        male = request.form['male']
+        q = request.form['q']
+        s = request.form['s']
+
+        data = [pclass, age, sibsp, parch, fare, male, q, s]
+
+        prediction = clf.predict([data])
 
     return render_template('pos.html', prediction = prediction)
 
